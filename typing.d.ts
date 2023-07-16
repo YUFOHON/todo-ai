@@ -1,10 +1,8 @@
 interface Board{
-    columns:Map<>
-
-
+  columns: Map<any,any>;
 }
 
-type TypedColumn ="todo"| "inprogress"| "done"
+type TypedColumn ="todo"| "inprogess"| "done"
 
 interface Column{
     id:TypedColumn,
