@@ -1,9 +1,35 @@
 "use client";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import { MagnifyingGlassIcon, UserCircleIcon } from "@heroicons/react/24/solid";
 import Avatart from "react-avatar";
+import { useBoardStore } from "@/store/BoardStore";
+import fetchSuggestion from "@/lib/fetchSuggestion";
+
 function Header() {
+  const [board, searchString, setSearchString] = useBoardStore((state) => [
+    state.board,
+    state.searchString,
+    state.setSearchString,
+  ]);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [suggestion, setSuggestion] = useState<string>(""); //["Bruce Yu","Bruce Lee","Bruce Wayne"
+  useEffect(() => {
+    if (board.columns.size === 0) return;
+
+    setLoading(true);
+    const fetchSuggestionFunc = async () => {
+      const suggestion = await fetchSuggestion(board);
+      console.log(
+        "🚀 ~ file: Header.tsx:23 ~ fetchSuggestionFunc ~ suggestion:",
+        suggestion
+      );
+      // setSuggestion(suggestion);
+      setLoading(false);
+    };
+    fetchSuggestionFunc();
+  }, [board]);
+
   return (
     <header>
       {/* Upper */}
@@ -12,8 +38,8 @@ function Header() {
       items-center p-5 justify-between 
        "
       >
-
-      <div className="
+        <div
+          className="
       absolute 
       top-0
       left-0
@@ -27,8 +53,8 @@ function Header() {
       blur-3xl
       opacity-50
       -z-50
-      "></div>
-
+      "
+        ></div>
 
         <Image
           placeholder="empty"
@@ -44,8 +70,14 @@ function Header() {
             action=""
             className="flex item-center space-x-5 bg-white rounded-md p-2 shadow-md"
           >
-            <MagnifyingGlassIcon className="w-6 h-6 text-gray-300" />
-            <input type="text" placeholder="Search" />
+            <MagnifyingGlassIcon className="w-6  text-purple-300" />
+            <input
+              className="pl-[14px] outline-purple-500"
+              type="text"
+              placeholder="Search"
+              value={searchString}
+              onChange={(e) => setSearchString(e.target.value)}
+            />
             <button type="submit" hidden>
               Search
             </button>
@@ -57,9 +89,14 @@ function Header() {
       </div>
       {/* Lower */}
       <div className="flex items-center justify-center px-5 md:py-5">
-        <p className="bg-white shadow-xl rounded-md p-2 italic  w-fit max-w-3xl text-purple-600">
-          <UserCircleIcon className="inline-block h-10 w-10 fill-purple-700	" />
-          Summarizing
+        <p className="bg-white shadow-xl rounded-md p-2 italic  w-fit max-w-3xl text-purple-600  flex">
+          <UserCircleIcon
+            className={`"inline-block h-10 w-10 fill-purple-700 "
+          ${loading && "animate-spin"}
+          `}
+          />
+
+          {suggestion && !loading ? suggestion : "GPT is thingking..."}
         </p>
       </div>
     </header>
